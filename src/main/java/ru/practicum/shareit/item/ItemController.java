@@ -18,6 +18,7 @@ import java.util.List;
 @Slf4j
 public class ItemController {
     private final ItemService itemService;
+    private final String HEADER_WITH_OWNER_ID = "X-Sharer-User-Id";
 
     @Autowired
     public ItemController(ItemService itemService) {
@@ -26,7 +27,7 @@ public class ItemController {
 
     @PostMapping
     public ItemDto addItem(@Validated(OnCreate.class) @RequestBody ItemDto itemDto,
-                           @RequestHeader(value = "X-Sharer-User-Id") int userId) {
+                           @RequestHeader(HEADER_WITH_OWNER_ID) int userId) {
         log.info("Received POST request from user {}", userId);
         return itemService.addItem(itemDto, userId);
     }
@@ -34,7 +35,7 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(@PathVariable int itemId,
                               @Validated(OnUpdate.class) @RequestBody ItemDto itemDto,
-                              @RequestHeader("X-Sharer-User-Id") Integer userId) {
+                              @RequestHeader(HEADER_WITH_OWNER_ID) Integer userId) {
         if (userId == null) {
             throw new NotOwnerException("Request not has User Id");
         }
@@ -49,7 +50,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getItemsByUserId(@RequestHeader("X-Sharer-User-Id") int userId) {
+    public List<ItemDto> getItemsByUserId(@RequestHeader(HEADER_WITH_OWNER_ID) int userId) {
         log.info("Received GET request for get items for user by id {}", userId);
         return itemService.getItemsByUserId(userId);
     }

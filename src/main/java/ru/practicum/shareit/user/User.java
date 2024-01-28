@@ -1,9 +1,6 @@
 package ru.practicum.shareit.user;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -14,7 +11,7 @@ import javax.validation.constraints.NotNull;
  */
 
 @Data
-@NoArgsConstructor
+@RequiredArgsConstructor
 @Builder
 @AllArgsConstructor
 public class User {
@@ -26,9 +23,4 @@ public class User {
     @Email
     @NotBlank
     private String email;
-
-    public User(String name, String email) {
-        this.name = name;
-        this.email = email;
-    }
 }

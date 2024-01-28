@@ -54,11 +54,12 @@ public class UserStorageImpl implements UserStorage {
         return users.get(id);
     }
 
-    private Integer generateIdUser() {
-        return idUser++;
-    }
-
+    @Override
     public Boolean isUserExists(int userId) {
         return users.get(userId) != null;
+    }
+
+    private Integer generateIdUser() {
+        return idUser++;
     }
 }

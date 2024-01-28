@@ -12,9 +12,9 @@ import javax.validation.constraints.NotNull;
  * TODO Sprint add-controllers.
  */
 @Data
-@NoArgsConstructor
 @Builder
 @AllArgsConstructor
+@RequiredArgsConstructor
 public class ItemDto {
     private Integer id;
 
@@ -28,40 +28,4 @@ public class ItemDto {
     private Boolean available;
     private Integer owner;
     private Integer request;
-
-    public ItemDto(Integer id, String name, String description, Boolean available, Integer request) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.available = available;
-        this.request = request;
-    }
-
-    public ItemDto(Integer id, String name, String description, Boolean available) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.available = available;
-    }
-
-    public ItemDto(String name, String description, Boolean available, Integer request) {
-        this.name = name;
-        this.description = description;
-        this.available = available;
-        this.request = request;
-    }
-
-    public ItemDto(String name, String description, Boolean available) {
-        this.name = name;
-        this.description = description;
-        this.available = available;
-    }
-
-    public ItemDto(String name) {
-        this.name = name;
-    }
-
-    public ItemDto(Boolean available) {
-        this.available = available;
-    }
 }

@@ -13,6 +13,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final String USER_ID = "userId";
 
     @Autowired
     public UserController(UserService userService) {
@@ -35,17 +36,17 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public User partialUpdateUser(@PathVariable("userId") int userId, @RequestBody UserDto userDto) {
+    public User partialUpdateUser(@PathVariable(USER_ID) int userId, @RequestBody UserDto userDto) {
         return userService.partialUpdateUser(userId, userDto);
     }
 
     @DeleteMapping("/{userId}")
-    public int deleteUser(@PathVariable("userId") int userId) {
+    public int deleteUser(@PathVariable(USER_ID) int userId) {
         return userService.deleteUser(userId);
     }
 
     @GetMapping("/{userId}")
-    public User getUserById(@PathVariable("userId") int id) {
-        return userService.getUserById(id);
+    public User getUserById(@PathVariable(USER_ID) int userId) {
+        return userService.getUserById(userId);
     }
 }

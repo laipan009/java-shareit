@@ -2,7 +2,6 @@ package ru.practicum.shareit.item.storage;
 
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,6 +41,7 @@ public class ItemStorageImpl implements ItemStorage {
         return items.get(id);
     }
 
+    @Override
     public List<Item> getItemsByUserId(int userId) {
         return items.values().stream()
                 .filter(item -> item.getOwner() == userId)

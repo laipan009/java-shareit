@@ -11,6 +11,8 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemStorage;
 import ru.practicum.shareit.user.service.UserService;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,10 +43,10 @@ public class ItemService {
         if (!itemById.getOwner().equals(userId)) {
             throw new NotOwnerException("This user is not owner for this item");
         }
-        Item item = ItemMapper.updateItemFromDto(itemById, itemDto);
-        itemStorage.updateItem(item);
-        ItemDto itemDto1 = ItemMapper.toItemDto(item);
-        return itemDto1;
+        Item updatedItem = ItemMapper.updateItemFromDto(itemById, itemDto);
+        itemStorage.updateItem(updatedItem);
+        ItemDto itemAfterMapping = ItemMapper.toItemDto(updatedItem);
+        return itemAfterMapping;
     }
 
     public ItemDto getItemById(int itemId) {
@@ -65,10 +67,11 @@ public class ItemService {
 
     public List<ItemDto> searchItems(String text) {
         log.info("Attempt to search items by key-word {}", text);
+
         return itemStorage.getAllItems().stream()
                 .filter(Item::getAvailable)
-                .filter(item -> item.getName().toLowerCase().contains(text.toLowerCase())
-                        || item.getDescription().toLowerCase().contains(text.toLowerCase()))
+                .filter(item -> StringUtils.containsIgnoreCase(item.getName(), text)
+                        || StringUtils.containsIgnoreCase(item.getDescription(), text))
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
