@@ -13,7 +13,7 @@ import ru.practicum.shareit.user.service.UserService;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,8 +45,7 @@ public class ItemService {
         }
         Item updatedItem = ItemMapper.updateItemFromDto(itemById, itemDto);
         itemStorage.updateItem(updatedItem);
-        ItemDto itemAfterMapping = ItemMapper.toItemDto(updatedItem);
-        return itemAfterMapping;
+        return ItemMapper.toItemDto(updatedItem);
     }
 
     public ItemDto getItemById(int itemId) {

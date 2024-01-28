@@ -13,7 +13,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    private final String USER_ID = "userId";
+    private static final String USER_ID = "userId";
 
     @Autowired
     public UserController(UserService userService) {

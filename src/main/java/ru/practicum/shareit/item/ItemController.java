@@ -18,7 +18,7 @@ import java.util.List;
 @Slf4j
 public class ItemController {
     private final ItemService itemService;
-    private final String HEADER_WITH_OWNER_ID = "X-Sharer-User-Id";
+    private static final String HEADER_WITH_OWNER_ID = "X-Sharer-User-Id";
 
     @Autowired
     public ItemController(ItemService itemService) {

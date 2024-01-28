@@ -15,24 +15,16 @@ public class ItemMapper {
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())
-                .request(item.getRequest() != null? item.getRequest().getId() : null)
+                .request(item.getRequest() != null ? item.getRequest().getId() : null)
                 .build();
     }
 
     public static Item updateItemFromDto(Item existingItem, ItemDto itemDto) {
         log.info("Attempt to update some attributes item with id {}", existingItem.getId());
-        if (Optional.ofNullable(itemDto.getId()).isPresent()) {
-            existingItem.setId(itemDto.getId());
-        }
-        if (Optional.ofNullable(itemDto.getName()).isPresent()) {
-            existingItem.setName(itemDto.getName());
-        }
-        if (Optional.ofNullable(itemDto.getDescription()).isPresent()) {
-            existingItem.setDescription(itemDto.getDescription());
-        }
-        if (Optional.ofNullable(itemDto.getAvailable()).isPresent()) {
-            existingItem.setAvailable(itemDto.getAvailable());
-        }
+        Optional.ofNullable(itemDto.getId()).ifPresent(existingItem::setId);
+        Optional.ofNullable(itemDto.getName()).ifPresent(existingItem::setName);
+        Optional.ofNullable(itemDto.getDescription()).ifPresent(existingItem::setDescription);
+        Optional.ofNullable(itemDto.getAvailable()).ifPresent(existingItem::setAvailable);
         return existingItem;
     }
 

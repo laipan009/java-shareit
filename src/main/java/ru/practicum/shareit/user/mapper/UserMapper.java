@@ -14,12 +14,8 @@ public class UserMapper {
     }
 
     public static User updateUserFromDto(User existingUser, UserDto userDto) {
-        if (Optional.ofNullable(userDto.getName()).isPresent()) {
-            existingUser.setName(userDto.getName());
-        }
-        if (Optional.ofNullable(userDto.getEmail()).isPresent()) {
-            existingUser.setEmail(userDto.getEmail());
-        }
+        Optional.ofNullable(userDto.getName()).ifPresent(existingUser::setName);
+        Optional.ofNullable(userDto.getEmail()).ifPresent(existingUser::setEmail);
         return existingUser;
     }
 }
