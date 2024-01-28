@@ -1,26 +1,18 @@
 package ru.practicum.shareit.user.storage;
 
-import lombok.Getter;
 import org.springframework.stereotype.Repository;
-import ru.practicum.shareit.exception.EmailDuplicateException;
 import ru.practicum.shareit.user.User;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Repository
 public class UserStorageImpl implements UserStorage {
 
     private Integer idUser = 1;
     private Map<Integer, User> users = new HashMap<>();
-
-    public Boolean isEmailExists(String email) {
-        for (User user : users.values()) {
-            if (user.getEmail().equals(email)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     @Override
     public List<User> getAllUsers() {
@@ -57,6 +49,16 @@ public class UserStorageImpl implements UserStorage {
     @Override
     public Boolean isUserExists(int userId) {
         return users.get(userId) != null;
+    }
+
+    @Override
+    public Boolean isEmailExists(String email) {
+        for (User user : users.values()) {
+            if (user.getEmail().equals(email)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private Integer generateIdUser() {
