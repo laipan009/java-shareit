@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import ru.practicum.shareit.booking.dto.ShortBookingDto;
@@ -18,6 +19,7 @@ import java.util.List;
 @SuperBuilder
 @AllArgsConstructor
 @RequiredArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class ItemDtoForOwner extends ItemDto {
     private Integer id;
 
