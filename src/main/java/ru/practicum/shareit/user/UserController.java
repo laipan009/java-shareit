@@ -26,27 +26,27 @@ public class UserController {
     }
 
     @PostMapping
-    public User addUser(@Valid @RequestBody User user) {
-        return userService.addUser(user);
+    public UserDto addUser(@Valid @RequestBody UserDto userDto) {
+        return userService.addUser(userDto);
     }
 
     @PutMapping
-    public User updateUser(@Valid @RequestBody User user) {
-        return userService.updateUser(user);
+    public UserDto updateUser(@Valid @RequestBody UserDto userDto) {
+        return userService.updateUser(userDto);
     }
 
     @PatchMapping("/{userId}")
-    public User partialUpdateUser(@PathVariable(USER_ID) int userId, @RequestBody UserDto userDto) {
+    public UserDto partialUpdateUser(@PathVariable(USER_ID) int userId, @RequestBody UserDto userDto) {
         return userService.partialUpdateUser(userId, userDto);
     }
 
     @DeleteMapping("/{userId}")
-    public int deleteUser(@PathVariable(USER_ID) int userId) {
-        return userService.deleteUser(userId);
+    public void deleteUser(@PathVariable(USER_ID) int userId) {
+        userService.deleteUser(userId);
     }
 
     @GetMapping("/{userId}")
-    public User getUserById(@PathVariable(USER_ID) int userId) {
+    public UserDto getUserById(@PathVariable(USER_ID) int userId) {
         return userService.getUserById(userId);
     }
 }

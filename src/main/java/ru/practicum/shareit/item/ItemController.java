@@ -5,7 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.NotOwnerException;
+import ru.practicum.shareit.item.dto.CommentInputDto;
+import ru.practicum.shareit.item.dto.CommentOutputDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoForOwner;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.validation.OnCreate;
 import ru.practicum.shareit.validation.OnUpdate;
@@ -18,7 +21,7 @@ import java.util.List;
 @Slf4j
 public class ItemController {
     private final ItemService itemService;
-    private static final String HEADER_WITH_OWNER_ID = "X-Sharer-User-Id";
+    private static final String HEADER_WITH_USER_ID = "X-Sharer-User-Id";
 
     @Autowired
     public ItemController(ItemService itemService) {
@@ -27,7 +30,7 @@ public class ItemController {
 
     @PostMapping
     public ItemDto addItem(@Validated(OnCreate.class) @RequestBody ItemDto itemDto,
-                           @RequestHeader(HEADER_WITH_OWNER_ID) int userId) {
+                           @RequestHeader(HEADER_WITH_USER_ID) int userId) {
         log.info("Received POST request from user {}", userId);
         return itemService.addItem(itemDto, userId);
     }
@@ -35,7 +38,7 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(@PathVariable int itemId,
                               @Validated(OnUpdate.class) @RequestBody ItemDto itemDto,
-                              @RequestHeader(HEADER_WITH_OWNER_ID) Integer userId) {
+                              @RequestHeader(HEADER_WITH_USER_ID) Integer userId) {
         if (userId == null) {
             throw new NotOwnerException("Request not has User Id");
         }
@@ -44,13 +47,13 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItemById(@PathVariable int itemId) {
+    public ItemDto getItemById(@PathVariable int itemId, @RequestHeader(HEADER_WITH_USER_ID) Integer userId) {
         log.info("Received GET request for get item by id {}", itemId);
-        return itemService.getItemById(itemId);
+        return itemService.getItemById(itemId, userId);
     }
 
     @GetMapping
-    public List<ItemDto> getItemsByUserId(@RequestHeader(HEADER_WITH_OWNER_ID) int userId) {
+    public List<ItemDtoForOwner> getItemsByUserId(@RequestHeader(HEADER_WITH_USER_ID) int userId) {
         log.info("Received GET request for get items for user by id {}", userId);
         return itemService.getItemsByUserId(userId);
     }
@@ -62,5 +65,12 @@ public class ItemController {
         }
         log.info("Received GET request for search items by word - {}", text);
         return itemService.searchItems(text);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentOutputDto saveComment(@RequestBody CommentInputDto comment,
+                                        @PathVariable Integer itemId,
+                                        @RequestHeader(HEADER_WITH_USER_ID) Integer authorId) {
+        return itemService.saveComment(comment, itemId, authorId);
     }
 }

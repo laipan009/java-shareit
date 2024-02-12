@@ -1,9 +1,14 @@
 package ru.practicum.shareit.item.mapper;
 
 import lombok.extern.slf4j.Slf4j;
+import ru.practicum.shareit.booking.dto.ShortBookingDto;
+import ru.practicum.shareit.item.dto.CommentOutputDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoForOwner;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.User;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -15,7 +20,6 @@ public class ItemMapper {
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())
-                .request(item.getRequest() != null ? item.getRequest().getId() : null)
                 .build();
     }
 
@@ -28,13 +32,30 @@ public class ItemMapper {
         return existingItem;
     }
 
-    public static Item getItemFromItemDto(ItemDto itemDto, int ownerId) {
+    public static Item getItemFromDto(ItemDto itemDto, User owner) {
         log.info("Attempt to map itemDto with id {} to item", itemDto.getId());
         return Item.builder()
-                .owner(ownerId)
+                .owner(owner)
                 .name(itemDto.getName())
                 .description(itemDto.getDescription())
                 .available(itemDto.getAvailable())
+                .build();
+    }
+
+    public static ItemDtoForOwner toItemBookingDto(Item item,
+                                                   ShortBookingDto last,
+                                                   ShortBookingDto next,
+                                                   List<CommentOutputDto> comments) {
+
+        log.info("Attempt to map item with id {} to ItemDtoForOwner", item.getId());
+        return ItemDtoForOwner.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .available(item.getAvailable())
+                .description(item.getDescription())
+                .lastBooking(last)
+                .nextBooking(next)
+                .comments(comments)
                 .build();
     }
 }
