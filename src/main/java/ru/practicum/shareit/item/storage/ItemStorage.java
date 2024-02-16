@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.storage;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
@@ -13,10 +14,10 @@ public interface ItemStorage extends JpaRepository<Item, Integer> {
     @EntityGraph(attributePaths = "owner")
     List<Item> findItemsByOwnerId(Integer ownerId);
 
-    @Query(" select i from Item i " +
-            "where upper(i.name) like upper(concat('%', ?1, '%')) " +
-            " or upper(i.description) like upper(concat('%', ?1, '%'))")
-    List<Item> search(String text);
+    @Query(value = "SELECT * FROM items i " +
+            "WHERE i.name ILIKE %:search% " +
+            "OR i.description ILIKE %:search%", nativeQuery = true)
+    List<Item> search(@Param("search") String text);
 
     @EntityGraph(attributePaths = "owner")
     Optional<Item> findItemById(Integer id);

@@ -15,7 +15,6 @@ import javax.validation.constraints.NotBlank;
 public class CommentInputDto {
     private Integer id;
 
-    @NotBlank
     private String text;
 
     private Integer itemId;

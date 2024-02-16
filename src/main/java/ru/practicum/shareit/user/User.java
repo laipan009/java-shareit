@@ -1,13 +1,11 @@
 package ru.practicum.shareit.user;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 /**
  * TODO Sprint add-controllers.
@@ -15,7 +13,8 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "users")
-@Data
+@Getter
+@Setter
 @RequiredArgsConstructor
 @Builder
 @AllArgsConstructor
@@ -32,4 +31,26 @@ public class User {
     @Email
     @NotNull
     private String email;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
 }

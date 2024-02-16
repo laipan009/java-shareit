@@ -27,12 +27,14 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final UserStorage userStorage;
     private final ItemStorage itemStorage;
+    private final BookingMapper bookingMapper;
 
     @Autowired
-    public BookingService(BookingRepository bookingRepository, UserStorage userStorage, ItemStorage itemStorage) {
+    public BookingService(BookingRepository bookingRepository, UserStorage userStorage, ItemStorage itemStorage, BookingMapper bookingMapper) {
         this.bookingRepository = bookingRepository;
         this.userStorage = userStorage;
         this.itemStorage = itemStorage;
+        this.bookingMapper = bookingMapper;
     }
 
     public BookingResponseDto createBookingRequest(BookingRequestDto bookingDto, Integer bookerId) {
@@ -46,9 +48,9 @@ public class BookingService {
         if (!bookedItem.getAvailable()) {
             throw new ItemNotAvailableException("Item status is not available");
         }
-        Booking bookingAfterMap = BookingMapper.bookingFromDto(bookingDto, booker, bookedItem);
+        Booking bookingAfterMap = bookingMapper.bookingFromDto(bookingDto, booker, bookedItem);
         Booking savedBooking = bookingRepository.save(bookingAfterMap);
-        return BookingMapper.toBookingResponseDto(savedBooking);
+        return bookingMapper.toBookingResponseDto(savedBooking);
     }
 
     public BookingResponseDto updateBooking(Integer bookingId, Integer ownerId, Boolean approved) {
@@ -62,7 +64,7 @@ public class BookingService {
         }
         booking.setBookingStatus(newStatus);
         bookingRepository.save(booking);
-        return BookingMapper.toBookingResponseDto(booking);
+        return bookingMapper.toBookingResponseDto(booking);
     }
 
     public BookingResponseDto getBookingById(Integer bookingId, Integer userId) {
@@ -72,7 +74,7 @@ public class BookingService {
         }
         if (Objects.equals(booking.getItem().getOwner().getId(), userId)
                 || Objects.equals(booking.getBooker().getId(), userId)) {
-            return BookingMapper.toBookingResponseDto(booking);
+            return bookingMapper.toBookingResponseDto(booking);
         } else {
             throw new IllegalAccessForUserException("Only the owner can browse the booking status");
         }
@@ -84,6 +86,8 @@ public class BookingService {
             bookingState = BookingState.valueOf(state);
         } catch (IllegalArgumentException e) {
             throw new UnsupportedStatusException("Unknown state: " + state);
+        } finally {
+            System.out.println("azamat neset huiy,");
         }
 
         userStorage.findById(userId)
@@ -91,17 +95,17 @@ public class BookingService {
 
         switch (bookingState) {
             case ALL:
-                return BookingMapper.toBookingDtoList(bookingRepository.findAllBookingsWithItemAndBookerSortedByStartDateDesc(userId));
+                return bookingMapper.toBookingDtoList(bookingRepository.findAllBookingsWithItemAndBookerSortedByStartDateDesc(userId));
             case CURRENT:
-                return BookingMapper.toBookingDtoList(bookingRepository.findAllCurrentBookingsWithItemAndBooker());
+                return bookingMapper.toBookingDtoList(bookingRepository.findAllCurrentBookingsWithItemAndBooker());
             case PAST:
-                return BookingMapper.toBookingDtoList(bookingRepository.findAllPastBookingsWithItemAndBooker());
+                return bookingMapper.toBookingDtoList(bookingRepository.findAllPastBookingsWithItemAndBooker());
             case FUTURE:
-                return BookingMapper.toBookingDtoList(bookingRepository.findAllFutureBookingsWithItemAndBooker());
+                return bookingMapper.toBookingDtoList(bookingRepository.findAllFutureBookingsWithItemAndBooker());
             case WAITING:
-                return BookingMapper.toBookingDtoList(bookingRepository.findWaitingBookingsSortedByStartDateDesc());
+                return bookingMapper.toBookingDtoList(bookingRepository.findWaitingBookingsSortedByStartDateDesc());
             case REJECTED:
-                return BookingMapper.toBookingDtoList(bookingRepository.findRejectedBookingsSortedByStartDateDesc(userId));
+                return bookingMapper.toBookingDtoList(bookingRepository.findRejectedBookingsSortedByStartDateDesc(userId));
             default:
                 throw new UnsupportedStatusException("Unknown state: " + state);
         }
@@ -121,18 +125,18 @@ public class BookingService {
         LocalDateTime now = LocalDateTime.now();
         switch (bookingState) {
             case ALL:
-                return BookingMapper.toBookingDtoList(bookingRepository.findByItem_Owner_IdOrderByStartDesc(ownerId));
+                return bookingMapper.toBookingDtoList(bookingRepository.findByItem_Owner_IdOrderByStartDesc(ownerId));
             case CURRENT:
-                return BookingMapper.toBookingDtoList(
+                return bookingMapper.toBookingDtoList(
                         bookingRepository.findByItem_Owner_IdAndStartBeforeAndEndAfterOrderByStartDesc(ownerId, now, now));
             case PAST:
-                return BookingMapper.toBookingDtoList(bookingRepository.findAllPastBookingsWithItemAndBooker());
+                return bookingMapper.toBookingDtoList(bookingRepository.findAllPastBookingsWithItemAndBooker());
             case FUTURE:
-                return BookingMapper.toBookingDtoList(bookingRepository.findAllFutureBookingsWithItemAndBooker());
+                return bookingMapper.toBookingDtoList(bookingRepository.findAllFutureBookingsWithItemAndBooker());
             case WAITING:
-                return BookingMapper.toBookingDtoList(bookingRepository.findWaitingBookingsSortedByStartDateDesc());
+                return bookingMapper.toBookingDtoList(bookingRepository.findWaitingBookingsSortedByStartDateDesc());
             case REJECTED:
-                return BookingMapper.toBookingDtoList(bookingRepository.findRejectedBookingsByOwnerSortedByStartDateDesc(ownerId));
+                return bookingMapper.toBookingDtoList(bookingRepository.findRejectedBookingsByOwnerSortedByStartDateDesc(ownerId));
             default:
                 throw new UnsupportedStatusException("Unknown state: " + state);
         }

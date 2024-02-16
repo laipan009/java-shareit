@@ -14,20 +14,22 @@ import java.util.List;
 @Service
 public class UserService {
     private final UserStorage userStorage;
+    private final UserMapper userMapper;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(UserStorage userStorage, UserMapper userMapper) {
         this.userStorage = userStorage;
+        this.userMapper = userMapper;
     }
 
     public UserDto addUser(UserDto userDto) {
-        User userFromDto = UserMapper.toUserFromDto(userDto);
+        User userFromDto = userMapper.toUserFromDto(userDto);
         userFromDto = userStorage.save(userFromDto);
-        return UserMapper.toUserDto(userFromDto);
+        return userMapper.toUserDto(userFromDto);
     }
 
     public UserDto updateUser(UserDto userDto) {
-        return UserMapper.toUserDto(userStorage.save(UserMapper.updateUserFromDto(new User(), userDto)));
+        return userMapper.toUserDto(userStorage.save(userMapper.updateUserFromDto(userDto, new User())));
     }
 
     public UserDto partialUpdateUser(int userId, UserDto userDto) {
@@ -35,9 +37,9 @@ public class UserService {
         if (userStorage.existsByEmail(userDto.getEmail()) && !userById.getEmail().equals(userDto.getEmail())) {
             throw new EmailDuplicateException("User with same email already exists");
         }
-        User updatedUser = UserMapper.updateUserFromDto(userById, userDto);
+        User updatedUser = userMapper.updateUserFromDto(userDto, userById);
         User save = userStorage.save(updatedUser);
-        return UserMapper.toUserDto(save);
+        return userMapper.toUserDto(save);
     }
 
     public void deleteUser(int id) {
@@ -50,6 +52,6 @@ public class UserService {
 
     public UserDto getUserById(int id) {
         User user = userStorage.findById(id).orElseThrow(() -> new UserNotExistsException("User not exists"));
-        return UserMapper.toUserDto(user);
+        return userMapper.toUserDto(user);
     }
 }

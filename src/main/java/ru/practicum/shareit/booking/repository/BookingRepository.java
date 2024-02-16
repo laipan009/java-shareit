@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.BookingStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -78,4 +79,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "AND b.booker.id = :userId " +
             "AND b.end < CURRENT_TIMESTAMP")
     boolean existsByItemIdAndUserIdAndEnded(@Param("itemId") Integer itemId, @Param("userId") Integer userId);
+
+    @EntityGraph(attributePaths = {"item", "booker"})
+    List<Booking> findByItem_Owner_IdAndBookingStatusNotOrderByStartDesc(Integer ownerId, BookingStatus bookingStatus);
 }
