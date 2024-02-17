@@ -127,13 +127,9 @@ public class ItemService {
         for (Item item : items) {
             Integer itemId = item.getId();
 
-            List<Booking> itemBookings = orderedBookings.stream()
-                    .filter(booking -> booking.getItem().getId().equals(itemId))
-                    .collect(Collectors.toList());
-
             // Получаем последнее бронирование (самое позднее из прошедших)
-            Booking lastBooking = itemBookings.stream()
-                    .filter(booking -> booking.getEnd().isBefore(now))
+            Booking lastBooking = orderedBookings.stream()
+                    .filter(booking -> booking.getItem().getId().equals(itemId) && booking.getEnd().isBefore(now))
                     .max(Comparator.comparing(Booking::getEnd))
                     .orElse(null);
 
@@ -142,8 +138,8 @@ public class ItemService {
             }
 
             // Получаем следующее бронирование (самое раннее из будущих)
-            Booking nextBooking = itemBookings.stream()
-                    .filter(booking -> booking.getStart().isAfter(now))
+            Booking nextBooking = orderedBookings.stream()
+                    .filter(booking -> booking.getItem().getId().equals(itemId) && booking.getStart().isAfter(now))
                     .min(Comparator.comparing(Booking::getStart))
                     .orElse(null);
 
