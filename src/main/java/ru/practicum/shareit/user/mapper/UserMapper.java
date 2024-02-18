@@ -1,21 +1,18 @@
 package ru.practicum.shareit.user.mapper;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dto.UserDto;
 
-import java.util.Optional;
+@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+public interface UserMapper {
+    UserDto toUserDto(User user);
 
-public class UserMapper {
-    public static UserDto toUserDto(User user) {
-        return new UserDto(
-                user.getName(),
-                user.getEmail()
-        );
-    }
+    @Mapping(target = "id", ignore = true)
+    User updateUserFromDto(UserDto userDto, @MappingTarget User existingUser);
 
-    public static User updateUserFromDto(User existingUser, UserDto userDto) {
-        Optional.ofNullable(userDto.getName()).ifPresent(existingUser::setName);
-        Optional.ofNullable(userDto.getEmail()).ifPresent(existingUser::setEmail);
-        return existingUser;
-    }
+    User toUserFromDto(UserDto userDto);
 }
