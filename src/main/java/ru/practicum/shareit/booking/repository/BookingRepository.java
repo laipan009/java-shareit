@@ -2,11 +2,12 @@ package ru.practicum.shareit.booking.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.BookingStatus;
 
 import java.time.LocalDateTime;
@@ -19,49 +20,49 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
 
     @EntityGraph(attributePaths = {"item", "booker", "item.owner"})
     @Query("SELECT b FROM Booking b WHERE b.booker.id = :booker_id ORDER BY b.start DESC")
-    List<Booking> findAllBookingsWithItemAndBookerSortedByStartDateDesc(@Param("booker_id") Integer id);
+    Slice<Booking> findAllBookingsWithItemAndBookerSortedByStartDateDesc(@Param("booker_id") Integer id, Pageable page);
 
     @EntityGraph(attributePaths = {"item", "booker", "item.owner"})
     @Query("SELECT b FROM Booking b " +
             "WHERE b.start <= CURRENT_TIMESTAMP AND b.end >= CURRENT_TIMESTAMP " +
             "ORDER BY b.start DESC")
-    List<Booking> findAllCurrentBookingsWithItemAndBooker();
+    Slice<Booking> findAllCurrentBookingsWithItemAndBooker(Pageable page);
 
     @EntityGraph(attributePaths = {"item", "booker", "item.owner"})
     @Query("SELECT b FROM Booking b " +
             "WHERE b.end < CURRENT_TIMESTAMP " +
             "ORDER BY b.start DESC")
-    List<Booking> findAllPastBookingsWithItemAndBooker();
+    Slice<Booking> findAllPastBookingsWithItemAndBooker(Pageable page);
 
     @EntityGraph(attributePaths = {"item", "booker", "item.owner"})
     @Query("SELECT b FROM Booking b " +
             "WHERE b.start > CURRENT_TIMESTAMP " +
             "ORDER BY b.start DESC")
-    List<Booking> findAllFutureBookingsWithItemAndBooker();
+    Slice<Booking> findAllFutureBookingsWithItemAndBooker(Pageable page);
 
     @EntityGraph(attributePaths = {"item", "booker", "item.owner"})
     @Query("SELECT b FROM Booking b " +
             "WHERE b.bookingStatus = 'WAITING' ORDER BY b.start DESC")
-    List<Booking> findWaitingBookingsSortedByStartDateDesc();
+    Slice<Booking> findWaitingBookingsSortedByStartDateDesc(Pageable page);
 
     @EntityGraph(attributePaths = {"item", "booker", "item.owner"})
     @Query("SELECT b FROM Booking b " +
             "WHERE b.bookingStatus = 'REJECTED' AND b.booker.id = :booker_id " +
             "ORDER BY b.start DESC")
-    List<Booking> findRejectedBookingsSortedByStartDateDesc(@Param("booker_id") Integer id);
+    Slice<Booking> findRejectedBookingsSortedByStartDateDesc(@Param("booker_id") Integer id, Pageable page);
 
     @EntityGraph(attributePaths = {"item", "booker", "item.owner"})
     @Query("SELECT b FROM Booking b " +
             "WHERE b.bookingStatus = 'REJECTED' AND b.item.owner.id = :owner_id " +
             "ORDER BY b.start DESC")
-    List<Booking> findRejectedBookingsByOwnerSortedByStartDateDesc(@Param("owner_id") Integer owner_id);
+    Slice<Booking> findRejectedBookingsByOwnerSortedByStartDateDesc(@Param("owner_id") Integer owner_id, Pageable page);
 
     @EntityGraph(attributePaths = {"item", "booker", "item.owner"})
-    List<Booking> findByItem_Owner_IdOrderByStartDesc(Integer ownerId);
+    Slice<Booking> findByItem_Owner_IdOrderByStartDesc(Integer ownerId, Pageable page);
 
     @EntityGraph(attributePaths = {"item", "booker", "item.owner"})
-    List<Booking> findByItem_Owner_IdAndStartBeforeAndEndAfterOrderByStartDesc(
-            Integer ownerId, LocalDateTime start, LocalDateTime end);
+    Slice<Booking> findByItem_Owner_IdAndStartBeforeAndEndAfterOrderByStartDesc(
+            Integer ownerId, LocalDateTime start, LocalDateTime end, Pageable page);
 
     @EntityGraph(attributePaths = {"item", "booker", "item.owner"})
     @Query("SELECT b FROM Booking b WHERE b.item.id = :itemId " +
@@ -81,7 +82,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
     @Query("SELECT b FROM Booking b " +
             "WHERE b.item.owner.id = :userId " +
             "ORDER BY b.item.id ASC")
-    List<Booking> findBookingsByUserId(@Param("userId") Integer userId);
+    Slice<Booking> findBookingsByUserId(@Param("userId") Integer userId, Pageable page);
 
     @Query("SELECT COUNT(b) > 0 FROM Booking b " +
             "WHERE b.item.id = :itemId " +

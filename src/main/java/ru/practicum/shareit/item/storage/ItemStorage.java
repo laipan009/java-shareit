@@ -37,4 +37,11 @@ public interface ItemStorage extends JpaRepository<Item, Integer> {
 
     @Procedure(name = "AddCommentToItem")
     void addCommentToItem(Integer itemId, Integer userId, String commentText);
+
+    List<Item> findByRequest_Requestor_Id(Integer requestorId);
+
+    Item findItemByRequestId(Integer requestId);
+
+    @Query("SELECT i FROM Item i JOIN FETCH i.request r WHERE r.id IN :requestIds")
+    List<Item> findItemsByRequestIds(@Param("requestIds") List<Integer> requestIds);
 }

@@ -1,8 +1,14 @@
 package ru.practicum.shareit.booking.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.Booking;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.BookingState;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
@@ -12,15 +18,19 @@ import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.*;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemStorage;
-import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 
+import javax.persistence.LockModeType;
 import javax.validation.ValidationException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class BookingService {
 
@@ -37,11 +47,15 @@ public class BookingService {
         this.bookingMapper = bookingMapper;
     }
 
+    @Transactional
+    @Lock(value = LockModeType.PESSIMISTIC_READ)
     public BookingResponseDto createBookingRequest(BookingRequestDto bookingDto, Integer bookerId) {
+        log.info("Attempt to create booking by user with ID = {} to item by ID = {}", bookerId, bookingDto.getItemId());
         User booker = userStorage.findById(bookerId)
                 .orElseThrow((() -> new UserNotExistsException("User not exists")));
         Item bookedItem = itemStorage.findById(bookingDto.getItemId())
                 .orElseThrow((() -> new ItemNotExistsException("Item not exists")));
+
         if (Objects.equals(bookedItem.getOwner().getId(), bookerId)) {
             throw new IllegalAccessForUserException("Item owner is not be booker");
         }
@@ -53,6 +67,8 @@ public class BookingService {
         return bookingMapper.toBookingResponseDto(savedBooking);
     }
 
+    @Transactional
+    @Lock(value = LockModeType.PESSIMISTIC_WRITE)
     public BookingResponseDto updateBooking(Integer bookingId, Integer ownerId, Boolean approved) {
         Booking booking = bookingRepository.findBookingByIdWithItemAndBookerEagerly(bookingId);
         if (!Objects.equals(booking.getItem().getOwner().getId(), ownerId)) {
@@ -67,6 +83,8 @@ public class BookingService {
         return bookingMapper.toBookingResponseDto(booking);
     }
 
+    @Transactional
+    @Lock(value = LockModeType.PESSIMISTIC_READ)
     public BookingResponseDto getBookingById(Integer bookingId, Integer userId) {
         Booking booking = bookingRepository.findBookingByIdWithItemAndBookerEagerly(bookingId);
         if (Optional.ofNullable(booking).isEmpty()) {
@@ -80,38 +98,49 @@ public class BookingService {
         }
     }
 
-    public List<BookingResponseDto> getBookingByUser(String state, Integer userId) {
+    @Transactional
+    @Lock(value = LockModeType.PESSIMISTIC_READ)
+    public List<BookingResponseDto> getBookingByUser(String state, Integer userId, Integer from, Integer size) {
+        int pageNumber = from / size;
+        Pageable page = PageRequest.of(pageNumber, size);
+
         BookingState bookingState;
         try {
             bookingState = BookingState.valueOf(state);
         } catch (IllegalArgumentException e) {
             throw new UnsupportedStatusException("Unknown state: " + state);
-        } finally {
-            System.out.println("azamat neset huiy,");
         }
-
         userStorage.findById(userId)
                 .orElseThrow((() -> new UserNotExistsException("User not exists with id: " + userId)));
 
         switch (bookingState) {
             case ALL:
-                return bookingMapper.toBookingDtoList(bookingRepository.findAllBookingsWithItemAndBookerSortedByStartDateDesc(userId));
+                Slice<Booking> sortedBookings = bookingRepository.findAllBookingsWithItemAndBookerSortedByStartDateDesc(userId, page);
+                return bookingMapper.toBookingDtoList(sortedBookings.getContent());
             case CURRENT:
-                return bookingMapper.toBookingDtoList(bookingRepository.findAllCurrentBookingsWithItemAndBooker());
+                Slice<Booking> currentBookings = bookingRepository.findAllCurrentBookingsWithItemAndBooker(page);
+                return bookingMapper.toBookingDtoList(currentBookings.getContent());
             case PAST:
-                return bookingMapper.toBookingDtoList(bookingRepository.findAllPastBookingsWithItemAndBooker());
+                Slice<Booking> pastBookings = bookingRepository.findAllPastBookingsWithItemAndBooker(page);
+                return bookingMapper.toBookingDtoList(pastBookings.getContent());
             case FUTURE:
-                return bookingMapper.toBookingDtoList(bookingRepository.findAllFutureBookingsWithItemAndBooker());
+                Slice<Booking> futureBookings = bookingRepository.findAllFutureBookingsWithItemAndBooker(page);
+                return bookingMapper.toBookingDtoList(futureBookings.getContent());
             case WAITING:
-                return bookingMapper.toBookingDtoList(bookingRepository.findWaitingBookingsSortedByStartDateDesc());
+                Slice<Booking> waitingBookings = bookingRepository.findWaitingBookingsSortedByStartDateDesc(page);
+                return bookingMapper.toBookingDtoList(waitingBookings.getContent());
             case REJECTED:
-                return bookingMapper.toBookingDtoList(bookingRepository.findRejectedBookingsSortedByStartDateDesc(userId));
+                Slice<Booking> rejectedBookings = bookingRepository.findRejectedBookingsSortedByStartDateDesc(userId, page);
+                return bookingMapper.toBookingDtoList(rejectedBookings.getContent());
             default:
                 throw new UnsupportedStatusException("Unknown state: " + state);
         }
     }
 
-    public List<BookingResponseDto> getBookingByOwner(String state, Integer ownerId) {
+    @Transactional
+    @Lock(value = LockModeType.PESSIMISTIC_READ)
+    public List<BookingResponseDto> getBookingByOwner(String state, Integer ownerId, Integer from, Integer size) {
+        Pageable page = PageRequest.of(from, size);
         BookingState bookingState;
         try {
             bookingState = BookingState.valueOf(state);
@@ -125,18 +154,23 @@ public class BookingService {
         LocalDateTime now = LocalDateTime.now();
         switch (bookingState) {
             case ALL:
-                return bookingMapper.toBookingDtoList(bookingRepository.findByItem_Owner_IdOrderByStartDesc(ownerId));
+                Slice<Booking> orderedBookings = bookingRepository.findByItem_Owner_IdOrderByStartDesc(ownerId, page);
+                return bookingMapper.toBookingDtoList(orderedBookings.getContent());
             case CURRENT:
-                return bookingMapper.toBookingDtoList(
-                        bookingRepository.findByItem_Owner_IdAndStartBeforeAndEndAfterOrderByStartDesc(ownerId, now, now));
+                Slice<Booking> bookings = bookingRepository.findByItem_Owner_IdAndStartBeforeAndEndAfterOrderByStartDesc(ownerId, now, now, page);
+                return bookingMapper.toBookingDtoList(bookings.getContent());
             case PAST:
-                return bookingMapper.toBookingDtoList(bookingRepository.findAllPastBookingsWithItemAndBooker());
+                Slice<Booking> pastBookings = bookingRepository.findAllPastBookingsWithItemAndBooker(page);
+                return bookingMapper.toBookingDtoList(pastBookings.getContent());
             case FUTURE:
-                return bookingMapper.toBookingDtoList(bookingRepository.findAllFutureBookingsWithItemAndBooker());
+                Slice<Booking> futureBookings = bookingRepository.findAllFutureBookingsWithItemAndBooker(page);
+                return bookingMapper.toBookingDtoList(futureBookings.getContent());
             case WAITING:
-                return bookingMapper.toBookingDtoList(bookingRepository.findWaitingBookingsSortedByStartDateDesc());
+                Slice<Booking> waitingBookings = bookingRepository.findWaitingBookingsSortedByStartDateDesc(page);
+                return bookingMapper.toBookingDtoList(waitingBookings.getContent());
             case REJECTED:
-                return bookingMapper.toBookingDtoList(bookingRepository.findRejectedBookingsByOwnerSortedByStartDateDesc(ownerId));
+                Slice<Booking> rejectedBookings = bookingRepository.findRejectedBookingsByOwnerSortedByStartDateDesc(ownerId, page);
+                return bookingMapper.toBookingDtoList(rejectedBookings.getContent());
             default:
                 throw new UnsupportedStatusException("Unknown state: " + state);
         }

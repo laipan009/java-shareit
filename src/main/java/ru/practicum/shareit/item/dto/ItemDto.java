@@ -27,4 +27,6 @@ public class ItemDto {
 
     @NotNull(message = "Availability status cannot be null", groups = OnCreate.class)
     private Boolean available;
+
+    private Integer requestId;
 }

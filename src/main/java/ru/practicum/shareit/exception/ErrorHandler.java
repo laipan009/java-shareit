@@ -16,7 +16,8 @@ public class ErrorHandler {
     @ExceptionHandler({UserNotExistsException.class,
             ItemNotExistsException.class,
             BookingNotExistsException.class,
-            IllegalAccessForUserException.class})
+            IllegalAccessForUserException.class,
+            RequestNotExistsException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> handleNotExistsEntity(final RuntimeException e) {
         log.error("Invoke exception: " + e.getMessage());
