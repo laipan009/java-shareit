@@ -157,7 +157,6 @@ class BookingServiceTest {
         when(bookingRepository.findBookingByIdWithItemAndBookerEagerly(booking.getId())).thenReturn(booking);
 
         assertThrows(ValidationException.class, () -> bookingService.updateBooking(booking.getId(), item.getOwner().getId(), true));
-        ;
     }
 
     @Test

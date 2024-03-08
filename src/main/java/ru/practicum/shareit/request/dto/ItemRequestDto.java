@@ -7,8 +7,6 @@ import lombok.experimental.SuperBuilder;
 import ru.practicum.shareit.validation.OnCreate;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Past;
 import java.time.LocalDateTime;
 
 /**
@@ -19,10 +17,10 @@ import java.time.LocalDateTime;
 @SuperBuilder
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class  ItemRequestDto {
+public class ItemRequestDto {
     private Integer id;
 
-    @NotBlank(message = "Description cannot be null", groups =OnCreate.class)
+    @NotBlank(message = "Description cannot be null", groups = OnCreate.class)
     private String description;
 
     private LocalDateTime created = LocalDateTime.now();
