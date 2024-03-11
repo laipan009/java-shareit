@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingState;
@@ -21,7 +20,6 @@ import ru.practicum.shareit.item.storage.ItemStorage;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 
-import javax.persistence.LockModeType;
 import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -45,8 +43,7 @@ public class BookingService {
         this.bookingMapper = bookingMapper;
     }
 
-    @Transactional
-    @Lock(value = LockModeType.PESSIMISTIC_READ)
+    @Transactional()
     public BookingResponseDto createBookingRequest(BookingRequestDto bookingDto, Integer bookerId) {
         log.info("Attempt to create booking by user with ID = {} to item by ID = {}", bookerId, bookingDto.getItemId());
         User booker = userStorage.findById(bookerId)
@@ -65,8 +62,7 @@ public class BookingService {
         return bookingMapper.toBookingResponseDto(savedBooking);
     }
 
-    @Transactional
-    @Lock(value = LockModeType.PESSIMISTIC_WRITE)
+    @Transactional()
     public BookingResponseDto updateBooking(Integer bookingId, Integer ownerId, Boolean approved) {
         Booking booking = bookingRepository.findBookingByIdWithItemAndBookerEagerly(bookingId);
         if (!Objects.equals(booking.getItem().getOwner().getId(), ownerId)) {
@@ -81,8 +77,7 @@ public class BookingService {
         return bookingMapper.toBookingResponseDto(booking);
     }
 
-    @Transactional
-    @Lock(value = LockModeType.PESSIMISTIC_READ)
+    @Transactional(readOnly = true)
     public BookingResponseDto getBookingById(Integer bookingId, Integer userId) {
         Booking booking = bookingRepository.findBookingByIdWithItemAndBookerEagerly(bookingId);
         if (Optional.ofNullable(booking).isEmpty()) {
@@ -96,8 +91,7 @@ public class BookingService {
         }
     }
 
-    @Transactional
-    @Lock(value = LockModeType.PESSIMISTIC_READ)
+    @Transactional(readOnly = true)
     public List<BookingResponseDto> getBookingByUser(String state, Integer userId, Integer from, Integer size) {
         int pageNumber = from / size;
         Pageable page = PageRequest.of(pageNumber, size);
@@ -135,8 +129,7 @@ public class BookingService {
         }
     }
 
-    @Transactional
-    @Lock(value = LockModeType.PESSIMISTIC_READ)
+    @Transactional(readOnly = true)
     public List<BookingResponseDto> getBookingByOwner(String state, Integer ownerId, Integer from, Integer size) {
         Pageable page = PageRequest.of(from, size);
         BookingState bookingState;

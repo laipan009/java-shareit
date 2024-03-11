@@ -12,9 +12,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.util.List;
 
-/**
- * TODO Sprint add-bookings.
- */
 @Validated
 @RestController
 @RequestMapping(path = "/bookings")

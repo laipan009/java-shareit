@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.dto.ShortBookingDto;
@@ -32,7 +32,6 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 
 import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 import javax.validation.ValidationException;
 import java.time.LocalDateTime;
@@ -67,6 +66,7 @@ public class ItemService {
         this.commentMapper = commentMapper;
     }
 
+    @Transactional()
     public ItemDto addItem(ItemDto itemDto, int userId) {
         log.info("Attempt to add new item by user with id {}", userId);
         Integer requestId = itemDto.getRequestId();
@@ -82,8 +82,7 @@ public class ItemService {
         return itemMapper.toItemDto(itemStorage.save(mappedItem));
     }
 
-    @Transactional
-    @Lock(value = LockModeType.PESSIMISTIC_WRITE)
+    @Transactional()
     public ItemDto updateItem(int itemId, ItemDto itemDto, int userId) {
         log.info("Attempt to update item by id {} for user with id {}", itemId, userId);
         Item itemById = itemStorage.findById(itemId)
@@ -98,8 +97,7 @@ public class ItemService {
         return itemMapper.toItemDto(updatedItem);
     }
 
-    @Transactional
-    @Lock(value = LockModeType.PESSIMISTIC_READ)
+    @Transactional(readOnly = true)
     public ItemDto getItemById(int itemId, Integer userId) {
         log.info("Attempt to received item by id {}", itemId);
         Item itemById = itemStorage.findItemById(itemId)
@@ -128,8 +126,7 @@ public class ItemService {
         return itemMapper.toItemBookingDto(itemById, null, null, comments);
     }
 
-    @Transactional
-    @Lock(value = LockModeType.PESSIMISTIC_READ)
+    @Transactional(readOnly = true)
     public List<ItemDtoForOwner> getItemsByUserId(int userId) {
         log.info("Attempt to received items by user id {}", userId);
         if (!userStorage.existsById(userId)) {
@@ -189,7 +186,7 @@ public class ItemService {
         }).collect(Collectors.toList());
     }
 
-
+    @Transactional(readOnly = true)
     public List<ItemDto> searchItems(String text) {
         log.info("Attempt to search items by key-word {}", text);
         return itemStorage.search(text).stream()
@@ -198,7 +195,7 @@ public class ItemService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public CommentOutputDto saveComment(CommentInputDto commentInputDto, Integer itemId, Integer authorId) {
         log.info("Attempt to save comment by user id {}", authorId);
         if (!bookingRepository.existsByItemIdAndUserIdAndEnded(itemId, authorId)) {

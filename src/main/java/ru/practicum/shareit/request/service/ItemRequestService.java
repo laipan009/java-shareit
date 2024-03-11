@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.RequestNotExistsException;
 import ru.practicum.shareit.exception.UserNotExistsException;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -45,6 +46,7 @@ public class ItemRequestService {
         this.itemMapper = itemMapper;
     }
 
+    @Transactional()
     public ItemRequestDto createItemRequest(ItemRequestDto itemRequestDto, Integer userId) {
         User user = userStorage.findById(userId)
                 .orElseThrow(() -> new UserNotExistsException("User with same id not exists"));
@@ -53,6 +55,7 @@ public class ItemRequestService {
         return itemRequestMapper.toDtoFromItemRequest(savedRequest);
     }
 
+    @Transactional(readOnly = true)
     public List<RequestDtoResponse> getRequestsForRequester(Integer userId) {
         if (!userStorage.existsById(userId)) {
             throw new UserNotExistsException("User with id " + userId + " does not exist.");
@@ -73,6 +76,7 @@ public class ItemRequestService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public RequestDtoResponse getRequestById(Integer requestId, Integer userId) {
         if (!userStorage.existsById(userId)) {
             throw new UserNotExistsException("User with id " + userId + " does not exist.");
@@ -86,6 +90,7 @@ public class ItemRequestService {
         return requestDtoResponse;
     }
 
+    @Transactional(readOnly = true)
     public List<RequestDtoResponse> getRequests(Integer from, Integer size, Integer userId) {
         Pageable pageable = PageRequest.of(from, size);
         Slice<ItemRequest> slice = itemRequestStorage.findAllItemRequestsSortedByCreatedDesc(pageable, userId);
