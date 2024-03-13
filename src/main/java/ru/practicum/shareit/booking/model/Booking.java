@@ -1,8 +1,10 @@
-package ru.practicum.shareit.booking;
+package ru.practicum.shareit.booking.model;
 
 import lombok.*;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -12,6 +14,8 @@ import java.util.Objects;
  * TODO Sprint add-bookings.
  */
 
+@Cacheable
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "bookings")
 @Entity
 @Table(name = "bookings")
 @Getter

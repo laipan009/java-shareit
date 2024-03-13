@@ -2,12 +2,15 @@ package ru.practicum.shareit.item.model;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import ru.practicum.shareit.user.User;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.Objects;
 
+@Cacheable
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(name = "comments")
 @Getter

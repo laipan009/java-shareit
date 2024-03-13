@@ -1,6 +1,7 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.model;
 
 import lombok.*;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -11,6 +12,8 @@ import java.util.Objects;
  * TODO Sprint add-controllers.
  */
 
+@Cacheable
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "users")
 @Entity
 @Table(name = "users")
 @Getter
