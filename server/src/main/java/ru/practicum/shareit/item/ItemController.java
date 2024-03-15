@@ -36,15 +36,12 @@ public class ItemController {
     public ItemDto updateItem(@PathVariable int itemId,
                               @RequestBody ItemDto itemDto,
                               @RequestHeader(HEADER_WITH_USER_ID) Integer userId) {
-        if (userId == null) {
-            throw new NotOwnerException("Request not has User Id");
-        }
         log.info("Received PATCH request from user {}", userId);
         return itemService.updateItem(itemId, itemDto, userId);
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItemById(@PathVariable int itemId, @RequestHeader(HEADER_WITH_USER_ID) Integer userId) {
+    public ItemDtoForOwner getItemById(@PathVariable int itemId, @RequestHeader(HEADER_WITH_USER_ID) Integer userId) {
         log.info("Received GET request for get item by id {}", itemId);
         return itemService.getItemById(itemId, userId);
     }

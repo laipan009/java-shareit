@@ -8,10 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.item.dto.CommentInputDto;
-import ru.practicum.shareit.item.dto.CommentOutputDto;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemDtoForOwner;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.service.ItemService;
 
 import java.time.LocalDateTime;
@@ -37,6 +34,8 @@ public class ItemControllerTest {
 
     private ItemDto itemDto;
 
+    private ItemDtoForOwner itemDtoForOwner;
+
     @BeforeEach
     void setUp() {
         itemDto = new ItemDto();
@@ -44,6 +43,13 @@ public class ItemControllerTest {
         itemDto.setName("Drill");
         itemDto.setDescription("Powerful drill");
         itemDto.setAvailable(true);
+
+        itemDtoForOwner = ItemDtoForOwner.builder()
+                .id(itemDto.getId())
+                .name(itemDto.getName())
+                .description(itemDto.getDescription())
+                .available(itemDto.getAvailable())
+                .build();
     }
 
     @Test
@@ -78,12 +84,12 @@ public class ItemControllerTest {
 
     @Test
     void getItemByIdShouldReturnItem() throws Exception {
-        when(itemService.getItemById(anyInt(), anyInt())).thenReturn(itemDto);
+        when(itemService.getItemById(anyInt(), anyInt())).thenReturn(itemDtoForOwner);
 
         mockMvc.perform(get("/items/{itemId}", 1)
                         .header("X-Sharer-User-Id", 1))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(itemDto.getId()));
+                .andExpect(jsonPath("$.id").value(itemDtoForOwner.getId()));
     }
 
     @Test

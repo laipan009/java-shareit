@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.item.dto.ItemDtoResponse;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
@@ -61,7 +62,7 @@ public class BookingControllerTest {
 
         bookingResponseDto = new BookingResponseDto();
         bookingResponseDto.setId(1);
-        bookingResponseDto.setItem(new Item());
+        bookingResponseDto.setItem(new ItemDtoResponse());
         bookingResponseDto.setStart(LocalDateTime.now().plusDays(1));
         bookingResponseDto.setEnd(LocalDateTime.now().plusDays(2));
         bookingResponseDto.setStatus(BookingStatus.WAITING);

@@ -7,7 +7,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
 
-@FeignClient(name = "user-server", url = "http://localhost:8090/users", configuration = FeignConfig.class)
+@FeignClient(name = "user-server", url = "http://server:8090/users", configuration = FeignConfig.class)
 public interface UserFeignClient {
 
     String USER_ID = "userId";

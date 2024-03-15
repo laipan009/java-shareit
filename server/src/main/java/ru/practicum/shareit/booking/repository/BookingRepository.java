@@ -25,7 +25,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
     @EntityGraph(attributePaths = {"item", "booker", "item.owner"})
     @Query("SELECT b FROM Booking b " +
             "WHERE b.start <= CURRENT_TIMESTAMP AND b.end >= CURRENT_TIMESTAMP " +
-            "ORDER BY b.start DESC")
+            "ORDER BY b.id ASC")
     Slice<Booking> findAllCurrentBookingsWithItemAndBooker(Pageable page);
 
     @EntityGraph(attributePaths = {"item", "booker", "item.owner"})

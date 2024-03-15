@@ -98,7 +98,7 @@ public class ItemService {
     }
 
     @Transactional(readOnly = true)
-    public ItemDto getItemById(int itemId, Integer userId) {
+    public ItemDtoForOwner getItemById(int itemId, Integer userId) {
         log.info("Attempt to received item by id {}", itemId);
         Item itemById = itemStorage.findItemById(itemId)
                 .orElseThrow(() -> new ItemNotExistsException("Item not exists"));
@@ -176,14 +176,18 @@ public class ItemService {
                 ));
 
         // Собираем все в список ItemDtoForOwner
-        return items.stream().map(item -> {
-            Integer itemId = item.getId();
-            ShortBookingDto lastBookingDto = lastBookingsMap.get(itemId);
-            ShortBookingDto nextBookingDto = nextBookingsMap.get(itemId);
-            List<CommentOutputDto> itemComments = commentsMap.getOrDefault(itemId, Collections.emptyList());
+        List<ItemDtoForOwner> result = items.stream()
+                .sorted(Comparator.comparingInt(Item::getId))
+                .map(item -> {
+                    Integer itemId = item.getId();
+                    ShortBookingDto lastBookingDto = lastBookingsMap.get(itemId);
+                    ShortBookingDto nextBookingDto = nextBookingsMap.get(itemId);
+                    List<CommentOutputDto> itemComments = commentsMap.getOrDefault(itemId, Collections.emptyList());
 
-            return itemMapper.toItemBookingDto(item, lastBookingDto, nextBookingDto, itemComments);
-        }).collect(Collectors.toList());
+                    return itemMapper.toItemBookingDto(item, lastBookingDto, nextBookingDto, itemComments);
+                }).collect(Collectors.toList());
+
+        return result;
     }
 
     @Transactional(readOnly = true)

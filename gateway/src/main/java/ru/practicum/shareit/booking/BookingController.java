@@ -1,8 +1,10 @@
 package ru.practicum.shareit.booking;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.exception.EndTimeBeforeStartException;
@@ -66,7 +68,7 @@ public class BookingController {
     private void checkEndTimeBeforeStart(BookingRequestDto bookingRequestDto) {
         if (bookingRequestDto.getEnd().isBefore(bookingRequestDto.getStart())
                 || bookingRequestDto.getEnd().isEqual(bookingRequestDto.getStart())) {
-            throw new EndTimeBeforeStartException("End date must be after start date");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "End date must be after start date");
         }
     }
 }

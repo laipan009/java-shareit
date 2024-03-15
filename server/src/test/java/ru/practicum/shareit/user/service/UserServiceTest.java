@@ -102,12 +102,13 @@ class UserServiceTest {
     @Test
     void testGetUsersWhenCalledThenUserStorageFindAllCalled() {
         when(userStorage.findAll()).thenReturn(List.of(user));
+        when(userMapper.getListUserDto(anyList())).thenReturn(List.of(userDto));
 
-        List<User> result = userService.getUsers();
+        List<UserDto> result = userService.getUsers();
 
         assertNotNull(result);
         assertFalse(result.isEmpty());
-        assertEquals(user, result.get(0));
+        assertEquals(userDto, result.get(0));
         verify(userStorage).findAll();
     }
 

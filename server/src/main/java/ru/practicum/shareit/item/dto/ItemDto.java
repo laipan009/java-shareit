@@ -19,13 +19,10 @@ import javax.validation.constraints.NotNull;
 public class ItemDto {
     private Integer id;
 
-    @NotBlank(message = "Name cannot be null", groups = OnCreate.class)
     private String name;
 
-    @NotBlank(message = "Description cannot be null", groups = OnCreate.class)
     private String description;
 
-    @NotNull(message = "Availability status cannot be null", groups = OnCreate.class)
     private Boolean available;
 
     private Integer requestId;

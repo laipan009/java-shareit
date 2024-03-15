@@ -8,7 +8,7 @@ import ru.practicum.shareit.request.dto.RequestDtoResponse;
 import javax.validation.constraints.Min;
 import java.util.List;
 
-@FeignClient(name = "request-server", url = "http://localhost:8090/requests")
+@FeignClient(name = "request-server", url = "http://server:8090/requests")
 public interface RequestFeignClient {
 
     String HEADER_WITH_USER_ID = "X-Sharer-User-Id";

@@ -9,7 +9,7 @@ import ru.practicum.shareit.item.dto.ItemDtoForOwner;
 
 import java.util.List;
 
-@FeignClient(name = "item-server", url = "http://localhost:8090/items")
+@FeignClient(name = "item-server", url = "http://server:8090/items")
 public interface ItemFeignClient {
 
     String HEADER_WITH_USER_ID = "X-Sharer-User-Id";
@@ -24,7 +24,7 @@ public interface ItemFeignClient {
                        @RequestHeader(HEADER_WITH_USER_ID) Integer userId);
 
     @GetMapping("/{itemId}")
-    ItemDto getItemById(@PathVariable int itemId, @RequestHeader(HEADER_WITH_USER_ID) Integer userId);
+    ItemDtoForOwner getItemById(@PathVariable int itemId, @RequestHeader(HEADER_WITH_USER_ID) Integer userId);
 
     @GetMapping
     List<ItemDtoForOwner> getItemsByUserId(@RequestHeader(HEADER_WITH_USER_ID) int userId);

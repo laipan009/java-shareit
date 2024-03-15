@@ -53,7 +53,7 @@ class UserControllerTest {
 
     @Test
     void getUsersShouldReturnListOfUsers() throws Exception {
-        when(userService.getUsers()).thenReturn(Collections.singletonList(user));
+        when(userService.getUsers()).thenReturn(Collections.singletonList(userDto));
 
         mockMvc.perform(get("/users"))
                 .andExpect(status().isOk())

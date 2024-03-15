@@ -7,7 +7,7 @@ import ru.practicum.shareit.booking.dto.BookingResponseDto;
 
 import java.util.List;
 
-@FeignClient(name = "booking-server", url = "http://localhost:8090/bookings")
+@FeignClient(name = "booking-server", url = "http://server:8090/bookings")
 public interface BookingFeignClient {
 
     String HEADER_WITH_USER_ID = "X-Sharer-User-Id";

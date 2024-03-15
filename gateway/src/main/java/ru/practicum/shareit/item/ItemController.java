@@ -2,8 +2,10 @@ package ru.practicum.shareit.item;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.exception.NotOwnerException;
 import ru.practicum.shareit.item.dto.CommentInputDto;
 import ru.practicum.shareit.item.dto.CommentOutputDto;
@@ -15,6 +17,7 @@ import ru.practicum.shareit.validation.OnUpdate;
 import java.util.Collections;
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("/items")
 @Slf4j
@@ -39,14 +42,14 @@ public class ItemController {
                               @Validated(OnUpdate.class) @RequestBody ItemDto itemDto,
                               @RequestHeader(HEADER_WITH_USER_ID) Integer userId) {
         if (userId == null) {
-            throw new NotOwnerException("Request not has User Id");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Request not has User Id");
         }
         log.info("Received PATCH request from user {}", userId);
         return feignClient.updateItem(itemId, itemDto, userId);
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItemById(@PathVariable int itemId, @RequestHeader(HEADER_WITH_USER_ID) Integer userId) {
+    public ItemDtoForOwner getItemById(@PathVariable int itemId, @RequestHeader(HEADER_WITH_USER_ID) Integer userId) {
         log.info("Received GET request for get item by id {}", itemId);
         return feignClient.getItemById(itemId, userId);
     }

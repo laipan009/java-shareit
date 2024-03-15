@@ -59,5 +59,4 @@ public class BookingController {
             @RequestHeader(HEADER_WITH_USER_ID) Integer ownerId) {
         return bookingService.getBookingByOwner(state, ownerId, from, size);
     }
-
 }

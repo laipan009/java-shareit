@@ -20,7 +20,6 @@ import java.time.LocalDateTime;
 public class ItemRequestDto {
     private Integer id;
 
-    @NotBlank(message = "Description cannot be null", groups = OnCreate.class)
     private String description;
 
     private LocalDateTime created = LocalDateTime.now();
