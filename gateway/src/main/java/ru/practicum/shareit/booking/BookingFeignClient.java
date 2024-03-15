@@ -1,45 +1,39 @@
 package ru.practicum.shareit.booking;
 
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 
 import java.util.List;
 
-@FeignClient(name = "shareIt-server", url = "http://localhost:8080/bookings")
+@FeignClient(name = "booking-server", url = "http://localhost:8090/bookings")
 public interface BookingFeignClient {
 
+    String HEADER_WITH_USER_ID = "X-Sharer-User-Id";
+
     @PostMapping
-    BookingResponseDto createBookingRequest(BookingRequestDto bookingRequestDto,
-                                            Integer bookerId);
+    BookingResponseDto createBookingRequest(@RequestBody BookingRequestDto bookingRequestDto,
+                                            @RequestHeader(HEADER_WITH_USER_ID) Integer bookerId);
 
-    @PatchMapping("{bookingId}")
-    BookingResponseDto updateBooking(Integer bookingId,
-                                     Integer ownerId,
-                                     Boolean approved);
+    @PatchMapping("/{bookingId}")
+    BookingResponseDto updateBooking(@PathVariable("bookingId") Integer bookingId,
+                                     @RequestHeader(HEADER_WITH_USER_ID) Integer ownerId,
+                                     @RequestParam("approved") Boolean approved);
 
-
-    @GetMapping("{bookingId}")
-    BookingResponseDto getBookingById(Integer bookingId,
-                                      Integer userId);
-
+    @GetMapping("/{bookingId}")
+    BookingResponseDto getBookingById(@PathVariable("bookingId") Integer bookingId,
+                                      @RequestHeader(HEADER_WITH_USER_ID) Integer userId);
 
     @GetMapping
-    List<BookingResponseDto> getBookingByUser(
-            String state,
-            Integer userId,
-            Integer from,
-            Integer size);
-
+    List<BookingResponseDto> getBookingByUser(@RequestParam("state") String state,
+                                              @RequestHeader(HEADER_WITH_USER_ID) Integer userId,
+                                              @RequestParam("from") Integer from,
+                                              @RequestParam("size") Integer size);
 
     @GetMapping("/owner")
-    List<BookingResponseDto> getBookingByOwner(
-            String state,
-            Integer userId,
-            Integer from,
-            Integer size);
-
+    List<BookingResponseDto> getBookingByOwner(@RequestParam("state") String state,
+                                               @RequestHeader(HEADER_WITH_USER_ID) Integer userId,
+                                               @RequestParam("from") Integer from,
+                                               @RequestParam("size") Integer size);
 }

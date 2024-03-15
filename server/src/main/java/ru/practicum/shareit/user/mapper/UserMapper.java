@@ -8,6 +8,8 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserDtoResponse;
 import ru.practicum.shareit.user.model.User;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface UserMapper {
     UserDto toUserDto(User user);
@@ -18,4 +20,6 @@ public interface UserMapper {
     User toUserFromDto(UserDto userDto);
 
     UserDtoResponse toUserDtoResponse(User user);
+
+    List<UserDto> getListUserDto(List<User> users);
 }

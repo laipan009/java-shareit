@@ -53,8 +53,8 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public List<User> getUsers() {
-        return userStorage.findAll();
+    public List<UserDto> getUsers() {
+        return userMapper.getListUserDto(userStorage.findAll());
     }
 
     @Transactional(readOnly = true)

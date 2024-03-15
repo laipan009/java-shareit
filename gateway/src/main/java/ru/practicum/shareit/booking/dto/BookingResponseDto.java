@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.item.ItemDtoResponse;
-import ru.practicum.shareit.user.UserDtoResponse;
+import ru.practicum.shareit.item.dto.ItemDtoResponse;
+import ru.practicum.shareit.user.dto.UserDtoResponse;
 
 import java.time.LocalDateTime;
 
